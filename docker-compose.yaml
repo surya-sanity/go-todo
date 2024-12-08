@@ -1,0 +1,47 @@
+version: "3.7"
+
+services:
+  go-todo:
+    container_name: go-todo
+    image: surya-sanity/go-todo:dev
+    build:
+      context: .
+      target: dev
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+      - "2345:2345"
+    networks:
+      - go-todo-network
+
+  go-todo-db:
+    container_name: go-todo-db
+    image: postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - go-todo-network
+
+  pgadmin:
+    image: "docker.io/dpage/pgadmin4:latest"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${DB_DEFAULT_EMAIL}"
+      PGADMIN_DEFAULT_PASSWORD: "${DB_PASSWORD}"
+    ports:
+      - "5050:80"
+    networks:
+      - go-todo-network
+
+volumes:
+  postgres-db:
+
+networks:
+  go-todo-network:
+    name: go-todo-network
